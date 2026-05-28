@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_customaddons\dsa_customaddons\dsa,customaddons\dsa.customaddons\dsa,model_customaddons\dsa_customaddons\dsa,base.group_user,1,1,1,1
+access_dsa_details,dsa.details,model_dsa_details,base.group_user,1,1,1,1
+access_dsa_details_line,dsa.details.line,model_dsa_details_line,base.group_user,1,1,1,1

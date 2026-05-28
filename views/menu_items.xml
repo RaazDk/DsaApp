@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem name="DSA" id="menu_root_dsa">
+        <menuitem id="menu_dsa" name="DSA">
+            <menuitem id="dsa_details" name="DSA Details" action="dsa.action_dsa_details"/>
+        </menuitem>
+    </menuitem>
+</odoo>
