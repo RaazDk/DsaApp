@@ -1,0 +1,26 @@
+/* For inputs */
+.o_form_view .o_input {
+    border: 1px solid #555555 !important;
+    border-radius: 2px;
+}
+
+.o_form_view .o_input:focus {
+    border: 1px solid #4f46e5 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+/* Add new Line button in DSA Form */
+.o_field_x2many_list_row_add a {
+    display: inline-block;
+    background-color: #71639e;
+    color: white !important;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-decoration: none !important;
+    font-weight: 500;
+    margin-top: 6px;
+}
+
+.o_field_x2many_list_row_add a:hover {
+    opacity: 0.9;
+}
