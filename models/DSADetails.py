@@ -94,7 +94,8 @@ class DSADetailsLines(models.Model):
 
     dsa_date_from = fields.Date(
         string='From',
-        required=True
+        required=True,
+        
     )
 
     dsa_date_to = fields.Date(

@@ -66,11 +66,11 @@
                     <group col="2">
 
                         <group>
-                            <field name="travel_from"/>
+                            <field name="travel_from" options="{'max_date':'today'}"/>
                         </group>
 
                         <group>
-                            <field name="travel_to"/>
+                            <field name="travel_to" options="{'max_date':'today'}"/>
                         </group>
 
                     </group>
@@ -99,8 +99,8 @@
                         <field name="line_ids">
 
                             <list>
-                                <field name="dsa_date_from"/>
-                                <field name="dsa_date_to"/>
+                                <field name="dsa_date_from" options="{'max_date':'today'}"/>
+                                <field name="dsa_date_to" options="{'max_date':'today'}"/>
                                 <field name="place_of_stay"/>
                             </list>
 
