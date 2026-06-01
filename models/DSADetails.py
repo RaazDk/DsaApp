@@ -106,3 +106,11 @@ class DSADetailsLines(models.Model):
     place_of_stay = fields.Char(
         string='Place of Stay'
     )
+
+    hotel_provided = fields.Boolean(
+        string='Hotel Provided',
+    )
+    lunch_provided = fields.Boolean(
+        string='Lunch Provided',
+    )
+

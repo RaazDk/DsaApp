@@ -2,46 +2,50 @@
    DSA FORM - PROFESSIONAL UI
    ===================================================== */
 
-/* Page Background */
+/* Background */
 .o_form_view .o_form_sheet_bg {
     background: #f8fafc;
 }
 
-/* Main Sheet Card */
+/* Main Card */
 .o_form_view .o_form_sheet {
-    background: #ffffff;
+    background: #fff;
     border-radius: 14px;
-    padding: 28px !important;
+    padding: 24px !important;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 /* =====================================================
    LABELS
    ===================================================== */
 
+/* Equal width labels */
 .o_form_view .o_form_label {
-    width: 180px !important;
-    min-width: 180px !important;
-    max-width: 180px !important;
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
 
     font-weight: 600;
     color: #334155;
 
+    /* Allow wrapping */
     white-space: normal !important;
+    overflow-wrap: break-word;
     word-break: break-word;
     line-height: 1.35;
 
-    padding-top: 10px;
+    padding-top: 8px;
 }
 
+/* Align wrapped labels nicely */
 .o_form_view .o_wrap_label {
     align-items: flex-start !important;
 }
 
-/* Required field label */
+/* Required labels */
 .o_form_view .o_required_modifier .o_form_label {
-    color: #1e3a8a;
+    color: #1e293b;
 }
 
 /* =====================================================
@@ -49,7 +53,7 @@
    ===================================================== */
 
 .o_form_view .o_group {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .o_form_view .o_group .o_inner_group {
@@ -69,22 +73,19 @@
 
     padding: 8px 14px !important;
 
-    transition: all 0.2s ease;
     background: #fff;
+    transition: all .2s ease;
 }
-
-/* Focus */
 
 .o_form_view .o_input:focus,
 .o_form_view textarea:focus,
 .o_form_view select:focus {
     border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.15) !important;
     outline: none !important;
 }
 
 /* Readonly fields */
-
 .o_form_view .o_readonly_modifier input,
 .o_form_view .o_readonly_modifier textarea {
     background: #f8fafc !important;
@@ -101,22 +102,60 @@
 }
 
 /* =====================================================
-   SECTION HEADINGS
+   HEADER
    ===================================================== */
 
-.o_group .o_horizontal_separator {
+.oe_title {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.oe_title h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.oe_title .text-muted {
+    color: #64748b;
+    margin-top: 6px;
+}
+
+/* =====================================================
+   GROUP TITLES
+   ===================================================== */
+
+.o_group .o_group_title {
     font-size: 16px;
     font-weight: 700;
     color: #1e293b;
-
-    margin-top: 24px;
-    margin-bottom: 16px;
-
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 8px;
+    margin-bottom: 12px;
 }
 
+/* =====================================================
+   NOTEBOOK
+   ===================================================== */
 
+.o_notebook {
+    margin-top: 20px;
+}
+
+.o_notebook .nav-tabs {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.o_notebook .nav-link {
+    border: none !important;
+    border-radius: 8px 8px 0 0;
+    color: #475569;
+    font-weight: 600;
+}
+
+.o_notebook .nav-link.active {
+    background: #6366f1;
+    color: #fff !important;
+}
 
 /* =====================================================
    ONE2MANY TABLE
@@ -137,8 +176,8 @@
 }
 
 .o_list_view thead th {
-    color: #334155;
     font-weight: 600;
+    color: #334155;
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -156,7 +195,7 @@
     justify-content: center;
 
     background: #6366f1;
-    color: #ffffff !important;
+    color: #fff !important;
 
     padding: 8px 16px;
     border-radius: 8px;
@@ -164,14 +203,20 @@
     font-weight: 600;
     text-decoration: none !important;
 
-    transition: all 0.2s ease;
-
+    transition: all .2s ease;
     margin-top: 10px;
 }
 
 .o_field_x2many_list_row_add a:hover {
     background: #4f46e5;
-    transform: translateY(-1px);
+}
+
+/* =====================================================
+   CHECKBOXES
+   ===================================================== */
+
+.o_boolean_toggle {
+    transform: scale(1.1);
 }
 
 /* =====================================================
@@ -179,7 +224,7 @@
    ===================================================== */
 
 .o_field_date input {
-    text-align: left;
+    min-height: 42px;
 }
 
 /* =====================================================
@@ -189,26 +234,12 @@
 @media (max-width: 992px) {
 
     .o_form_view .o_form_label {
-        width: 120px !important;
-        min-width: 120px !important;
-        max-width: 120px !important;
+        width: 140px !important;
+        min-width: 140px !important;
+        max-width: 140px !important;
     }
 
     .o_form_view .o_form_sheet {
         padding: 16px !important;
     }
-}
-
-/*================================================
- Proper new listing button
-=====================================================
- */
-.o_field_x2many {
-    display: flex;
-    flex-direction: column;
-}
-
-.o_field_x2many .o_field_x2many_list_row_add {
-    order: -1;
-    margin-bottom: 12px;
 }
