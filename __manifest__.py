@@ -22,6 +22,13 @@ Long description of module's purpose
     'depends': ['base','hr'],
 
 
+ ## Loading of assets
+    'assets':{
+        'web.assets_backend':[
+            'dsa/static/styles/dsa_styles.css'
+        ],
+    },
+
 
     # always loaded
     'data': [
