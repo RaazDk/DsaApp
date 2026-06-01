@@ -1,26 +1,214 @@
-/* For inputs */
-.o_form_view .o_input {
-    border: 1px solid #555555 !important;
-    border-radius: 2px;
+/* =====================================================
+   DSA FORM - PROFESSIONAL UI
+   ===================================================== */
+
+/* Page Background */
+.o_form_view .o_form_sheet_bg {
+    background: #f8fafc;
 }
 
-.o_form_view .o_input:focus {
-    border: 1px solid #4f46e5 !important;
-    box-shadow: none !important;
+/* Main Sheet Card */
+.o_form_view .o_form_sheet {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* =====================================================
+   LABELS
+   ===================================================== */
+
+.o_form_view .o_form_label {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 180px !important;
+
+    font-weight: 600;
+    color: #334155;
+
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.35;
+
+    padding-top: 10px;
+}
+
+.o_form_view .o_wrap_label {
+    align-items: flex-start !important;
+}
+
+/* Required field label */
+.o_form_view .o_required_modifier .o_form_label {
+    color: #1e3a8a;
+}
+
+/* =====================================================
+   FIELD CONTAINERS
+   ===================================================== */
+
+.o_form_view .o_group {
+    margin-bottom: 18px;
+}
+
+.o_form_view .o_group .o_inner_group {
+    gap: 12px;
+}
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
+
+.o_form_view .o_input,
+.o_form_view textarea,
+.o_form_view select {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 5px !important;
+    min-height: 42px;
+
+    padding: 8px 14px !important;
+
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+/* Focus */
+
+.o_form_view .o_input:focus,
+.o_form_view textarea:focus,
+.o_form_view select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
     outline: none !important;
 }
-/* Add new Line button in DSA Form */
+
+/* Readonly fields */
+
+.o_form_view .o_readonly_modifier input,
+.o_form_view .o_readonly_modifier textarea {
+    background: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* =====================================================
+   TEXTAREA
+   ===================================================== */
+
+.o_form_view textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* =====================================================
+   SECTION HEADINGS
+   ===================================================== */
+
+.o_group .o_horizontal_separator {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+
+    margin-top: 24px;
+    margin-bottom: 16px;
+
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+
+
+
+/* =====================================================
+   ONE2MANY TABLE
+   ===================================================== */
+
+.o_list_view {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.o_list_view table {
+    margin-bottom: 0;
+}
+
+.o_list_view thead {
+    background: #f8fafc;
+}
+
+.o_list_view thead th {
+    color: #334155;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.o_list_view tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* =====================================================
+   ADD LINE BUTTON
+   ===================================================== */
+
 .o_field_x2many_list_row_add a {
-    display: inline-block;
-    background-color: #71639e;
-    color: white !important;
-    padding: 6px 12px;
-    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #6366f1;
+    color: #ffffff !important;
+
+    padding: 8px 16px;
+    border-radius: 8px;
+
+    font-weight: 600;
     text-decoration: none !important;
-    font-weight: 500;
-    margin-top: 6px;
+
+    transition: all 0.2s ease;
+
+    margin-top: 10px;
 }
 
 .o_field_x2many_list_row_add a:hover {
-    opacity: 0.9;
+    background: #4f46e5;
+    transform: translateY(-1px);
+}
+
+/* =====================================================
+   DATE FIELDS
+   ===================================================== */
+
+.o_field_date input {
+    text-align: left;
+}
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 992px) {
+
+    .o_form_view .o_form_label {
+        width: 120px !important;
+        min-width: 120px !important;
+        max-width: 120px !important;
+    }
+
+    .o_form_view .o_form_sheet {
+        padding: 16px !important;
+    }
+}
+
+/*================================================
+ Proper new listing button
+=====================================================
+ */
+.o_field_x2many {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_field_x2many .o_field_x2many_list_row_add {
+    order: -1;
+    margin-bottom: 12px;
 }
