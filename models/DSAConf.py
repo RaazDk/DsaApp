@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-
+from odoo.exceptions import ValidationError
 
 class DSAConf(models.Model):
     _name = 'dsa.conf'
@@ -41,6 +41,24 @@ class DSAConf(models.Model):
         store=True,
     )
 
+    @api.constrains('job_id', 'active')
+    def _check_single_active_configuration(self):
+        for rec in self:
+            if not rec.active or not rec.job_id:
+                continue
+
+            duplicate = self.search([
+                ('id', '!=', rec.id),
+                ('job_id', '=', rec.job_id.id),
+                ('active', '=', True),
+            ], limit=1)
+
+            if duplicate:
+                raise ValidationError(
+                    'An active DSA Configuration already exists for designation "%s". '
+                    'Please archive the existing configuration before creating another.'
+                    % rec.job_id.name
+                )
     @api.depends('job_id', 'dsa_rate')
     def _compute_display_name(self):
         for rec in self:
