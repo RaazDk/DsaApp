@@ -74,7 +74,8 @@ class DSADetails(models.Model):
     line_ids = fields.One2many(
         'dsa.details.line',
         'dsa_id',
-        string='Daily Accommodation Listing'
+        string='Daily Accommodation Listing',
+
     )
 
     lines_remaining = fields.Integer(
@@ -123,7 +124,7 @@ class DSADetails(models.Model):
             self.travel_to = self.travel_from
             return {
                 'warning': {
-                    'title': '⚠️ Invalid Date Range',
+                    'title': '\u26a0\ufe0f Invalid Date Range',
                     'message': 'Travel End Date cannot be before Travel Start Date.',
                 }
             }
@@ -148,10 +149,24 @@ class DSADetails(models.Model):
                 total_days = (rec.travel_to - rec.travel_from).days + 1
                 if len(rec.line_ids) > total_days:
                     raise ValidationError(
-                        f'You cannot add more than {total_days} accommodation '
-                        f'line(s) for the selected travel period '
-                        f'({rec.travel_from} to {rec.travel_to}).'
+                        'You cannot add more than %d accommodation '
+                        'line(s) for the selected travel period '
+                        '(%s to %s).' % (total_days, rec.travel_from, rec.travel_to)
                     )
+                # Re-validate existing lines when travel window shrinks
+                for line in rec.line_ids:
+                    if line.dsa_date_from and line.dsa_date_from < rec.travel_from:
+                        raise ValidationError(
+                            'Existing accommodation line date (%s) is before '
+                            'the updated travel start date (%s).'
+                            % (line.dsa_date_from, rec.travel_from)
+                        )
+                    if line.dsa_date_to and line.dsa_date_to > rec.travel_to:
+                        raise ValidationError(
+                            'Existing accommodation line date (%s) is after '
+                            'the updated travel end date (%s).'
+                            % (line.dsa_date_to, rec.travel_to)
+                        )
 
 
 class DSADetailsLine(models.Model):
@@ -159,14 +174,10 @@ class DSADetailsLine(models.Model):
     _description = 'Daily Accommodation Line'
     _order = 'dsa_date_from asc'
 
-    # One accommodation entry per date per DSA record
-    _sql_constraints = [
-        (
-            'unique_dsa_date_from',
-            'UNIQUE(dsa_id, dsa_date_from)',
-            'An accommodation entry for this date already exists on this DSA record.'
-        )
-    ]
+    _unique_dsa_date = models.Constraint(
+        'UNIQUE(dsa_id, dsa_date_from)',
+        'An accommodation entry for this date already exists on this DSA record.'
+    )
 
     dsa_id = fields.Many2one(
         'dsa.details',
@@ -175,7 +186,6 @@ class DSADetailsLine(models.Model):
         ondelete='cascade'
     )
 
-    # Related from parent so line form view can use it for button visibility
     lines_remaining = fields.Integer(
         related='dsa_id.lines_remaining',
         string='Remaining Days',
@@ -204,6 +214,26 @@ class DSADetailsLine(models.Model):
         string='Lunch Provided',
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            dsa_id = vals.get('dsa_id')
+            dsa_date_from = vals.get('dsa_date_from')
+
+            if dsa_id and dsa_date_from:
+                existing = self.search_count([
+                    ('dsa_id', '=', dsa_id),
+                    ('dsa_date_from', '=', dsa_date_from),
+                ])
+
+                if existing:
+                    raise ValidationError(
+                        'An accommodation entry for %s already exists on this DSA record. '
+                        'Each date can only have one entry.' % dsa_date_from
+                    )
+
+        return super().create(vals_list)
+
     # -------------------------------------------------------------------------
     # Onchanges
     # -------------------------------------------------------------------------
@@ -211,14 +241,11 @@ class DSADetailsLine(models.Model):
     @api.onchange('dsa_id')
     def _onchange_dsa_id(self):
         """
-        Fires when this line is linked to its parent — including on unsaved
-        (NewId) parent records.
-
-        Sequence:
-          Line 1  →  travel_from
-          Line 2  →  line 1 dsa_date_from + 1 day
-          Line N  →  line N-1 dsa_date_from + 1 day
-          Always clamped to travel_to
+        Auto-fills dsa_date_from and dsa_date_to when a new line is created.
+        - Line 1  -> travel_from
+        - Line N  -> previous line's dsa_date_from + 1 day
+        - Always clamped to travel_to
+        Works on both saved and unsaved (NewId) parent records.
         """
         parent = self.dsa_id
         if not parent or not parent.travel_from:
@@ -239,61 +266,76 @@ class DSADetailsLine(models.Model):
         self.dsa_date_from = next_date
         self.dsa_date_to = next_date
 
+    @api.onchange('dsa_date_from')
+    def _onchange_duplicate_date(self):
+        if not self.dsa_id or not self.dsa_date_from:
+            return
+
+        duplicates = self.dsa_id.line_ids.filtered(
+            lambda l: l != self and l.dsa_date_from == self.dsa_date_from
+        )
+
+        if duplicates:
+            self.dsa_date_from = False
+
+            return {
+                'warning': {
+                    'title': 'Duplicate Date',
+                    'message': (
+                            'Accommodation entry for selected date already exists on this DSA record.'
+                    ),
+                }
+            }
+
     @api.onchange('dsa_date_from', 'dsa_date_to')
     def _onchange_line_dates(self):
         """
-        If user manually picks a date outside the travel window,
-        auto-correct and show Odoo's native warning toast.
+        Validates dsa_date_from/dsa_date_to against the parent travel window.
+        On violation: resets the offending field to False and shows a warning toast.
         """
         parent = self.dsa_id
-        if not parent or not parent.travel_from or not parent.travel_to:
+        if not parent:
+            return
+
+        travel_from = parent.travel_from
+        travel_to = parent.travel_to
+
+        if not travel_from or not travel_to:
             return
 
         warning_msgs = []
 
         if self.dsa_date_from:
-            if self.dsa_date_from < parent.travel_from:
-                self.dsa_date_from = parent.travel_from
+            if self.dsa_date_from < travel_from or self.dsa_date_from > travel_to:
                 warning_msgs.append(
-                    f'  \u2022 "From" date set to travel start: {parent.travel_from}'
+                    '  \u2022 "From" date %s is outside travel period \u2014 field has been reset.'
+                    % self.dsa_date_from
                 )
-            elif self.dsa_date_from > parent.travel_to:
-                self.dsa_date_from = parent.travel_to
-                warning_msgs.append(
-                    f'  \u2022 "From" date set to travel end: {parent.travel_to}'
-                )
+                self.dsa_date_from = False
 
         if self.dsa_date_to:
-            if self.dsa_date_to < parent.travel_from:
-                self.dsa_date_to = parent.travel_from
+            if self.dsa_date_to < travel_from or self.dsa_date_to > travel_to:
                 warning_msgs.append(
-                    f'  \u2022 "To" date set to travel start: {parent.travel_from}'
+                    '  \u2022 "To" date %s is outside travel period \u2014 field has been reset.'
+                    % self.dsa_date_to
                 )
-            elif self.dsa_date_to > parent.travel_to:
-                self.dsa_date_to = parent.travel_to
-                warning_msgs.append(
-                    f'  \u2022 "To" date set to travel end: {parent.travel_to}'
-                )
+                self.dsa_date_to = False
 
-        if (
-            self.dsa_date_from
-            and self.dsa_date_to
-            and self.dsa_date_from > self.dsa_date_to
-        ):
-            self.dsa_date_to = self.dsa_date_from
-            warning_msgs.append(
-                '  \u2022 "To" date cannot be before "From" \u2014 set to match "From".'
-            )
+        if self.dsa_date_from and self.dsa_date_to:
+            if self.dsa_date_from > self.dsa_date_to:
+                warning_msgs.append(
+                    '  \u2022 "From" date cannot be after "To" date \u2014 "To" has been reset.'
+                )
+                self.dsa_date_to = False
 
         if warning_msgs:
             return {
                 'warning': {
-                    'title': '\u26a0\ufe0f Date Out of Travel Range',
+                    'title': '\u26a0\ufe0f Invalid Accommodation Date',
                     'message': (
-                        'The selected date(s) were outside the travel period '
-                        'and have been adjusted:\n\n'
+                        'The following date(s) were invalid and have been cleared:\n\n'
                         + '\n'.join(warning_msgs)
-                        + f'\n\nAllowed range:  {parent.travel_from}  \u2192  {parent.travel_to}'
+                        + '\n\nAllowed range:  %s  \u2192  %s' % (travel_from, travel_to)
                     ),
                 }
             }
@@ -304,16 +346,20 @@ class DSADetailsLine(models.Model):
 
     @api.constrains('dsa_date_from')
     def _check_unique_date_per_dsa(self):
+        # Raises ValidationError before the SQL unique constraint fires,
+        # keeping the transaction clean and giving a readable message.
         for line in self:
-            duplicate = self.search([
+            if not line.dsa_date_from:
+                continue
+            count = self.search_count([
                 ('dsa_id', '=', line.dsa_id.id),
                 ('dsa_date_from', '=', line.dsa_date_from),
                 ('id', '!=', line.id),
-            ], limit=1)
-            if duplicate:
+            ])
+            if count:
                 raise ValidationError(
-                    f'An accommodation entry for {line.dsa_date_from} already '
-                    f'exists on this DSA record. Each date can only have one entry.'
+                    'An accommodation entry for %s already exists on this DSA record. '
+                    'Each date can only have one entry.' % line.dsa_date_from
                 )
 
     @api.constrains('dsa_date_from', 'dsa_date_to')
@@ -329,11 +375,11 @@ class DSADetailsLine(models.Model):
             if parent.travel_from and parent.travel_to:
                 if line.dsa_date_from and line.dsa_date_from < parent.travel_from:
                     raise ValidationError(
-                        f'Accommodation "From" date ({line.dsa_date_from}) '
-                        f'cannot be before travel start date ({parent.travel_from}).'
+                        'Accommodation "From" date (%s) cannot be before '
+                        'travel start date (%s).' % (line.dsa_date_from, parent.travel_from)
                     )
                 if line.dsa_date_to and line.dsa_date_to > parent.travel_to:
                     raise ValidationError(
-                        f'Accommodation "To" date ({line.dsa_date_to}) '
-                        f'cannot be after travel end date ({parent.travel_to}).'
+                        'Accommodation "To" date (%s) cannot be after '
+                        'travel end date (%s).' % (line.dsa_date_to, parent.travel_to)
                     )

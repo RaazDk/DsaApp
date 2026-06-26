@@ -31,7 +31,7 @@
         <field name="model">dsa.details</field>
         <field name="arch" type="xml">
 
-            <form string="DSaa Details">
+            <form string="DSA Details">
                 <sheet>
 
                     <field name="lines_remaining" invisible="1"/>
@@ -61,20 +61,36 @@
                         <field name="travel_purpose"/>
                     </group>
 
-                    <!-- Status banner -->
+                    <!--
+                        Warning: all days filled
+                        role="alert" required by Odoo 19 accessibility rules
+                    -->
                     <div class="alert alert-warning mb-2"
+                         role="alert"
                          invisible="lines_remaining != 0 or not travel_from or not travel_to">
                         All travel days have been covered. Adding more lines will be blocked on save.
                     </div>
 
+                    <!--
+                        Info: days remaining
+                        role="status" for non-interrupting informational message
+                    -->
                     <div class="alert alert-info mb-2"
+                         role="status"
                          invisible="lines_remaining == 0 or not travel_from or not travel_to">
                         <field name="lines_remaining" nolabel="1" class="fw-bold"/> of
                         <field name="total_travel_days" nolabel="1"/> day(s) remaining.
                     </div>
 
                     <group string="Accommodation Details">
-                        <field name="line_ids" readonly="not travel_from or not travel_to">
+                        <!--
+                            readonly when travel dates not yet entered:
+                              - hides Add a line button
+                              - prevents editing before travel window is defined
+                            min_rows="0": removes Odoo's default blank placeholder rows
+                        -->
+                        <field name="line_ids"
+                               readonly="not travel_from or not travel_to">
                             <list editable="bottom" min_rows="0">
                                 <field name="dsa_date_from" format="%d-%m-%Y"/>
                                 <field name="dsa_date_to"   format="%d-%m-%Y"/>
