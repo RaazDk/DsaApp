@@ -16,6 +16,7 @@
             <list string="DSA Details">
                 <field name="employee_id"/>
                 <field name="job_id"/>
+                <field name="tr_number"/>
                 <field name="po_number"/>
                 <field name="month"/>
                 <field name="travel_from"/>
@@ -45,22 +46,25 @@
                     </group>
 
                     <group col="2">
+                        <group><field name="tr_number"/> </group>
                         <group><field name="po_number"/></group>
+                    </group>
+
+                    <group col="2">
                         <group><field name="month"/></group>
-                    </group>
-
-                    <group col="2">
                         <group><field name="travel_from"/></group>
+                    </group>
+
+                    <group col="2">
                         <group><field name="travel_to"/></group>
-                    </group>
-
-                    <group col="2">
                         <group><field name="travel_location_from"/></group>
-                        <group><field name="travel_location_to"/></group>
                     </group>
 
                     <group col="2">
-                        <field name="travel_purpose"/>
+                        <group><field name="travel_location_to"/></group>
+                        <group><field name="travel_purpose"/></group>
+                    </group>
+                    <group>
                         <group><field name="conf_id" readonly="1"/></group>
 
                     </group>

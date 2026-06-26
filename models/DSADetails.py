@@ -22,6 +22,10 @@ class DSADetails(models.Model):
         readonly=True
     )
 
+    tr_number = fields.Char(
+        string='Travel Order Number',
+        required=True
+    )
     po_number = fields.Char(
         string='PO Number',
         required=True
@@ -73,7 +77,9 @@ class DSADetails(models.Model):
     conf_id = fields.Many2one(
         'dsa.conf',
         string='Allowance Configuration',
-        domain=[('active', '=', True)]
+        compute='_compute_conf_id',
+        store=True,
+        readonly=True,
     )
 
 
@@ -97,6 +103,15 @@ class DSADetails(models.Model):
     # -------------------------------------------------------------------------
     # Computes
     # -------------------------------------------------------------------------
+
+    @api.depends('job_id')
+    def _compute_conf_id(self):
+        for rec in self:
+            rec.conf_id = self.env['dsa.conf'].search([
+                ('job_id', '=', rec.job_id.id),
+                ('active', '=', True),
+            ], limit=1)
+
 
     @api.depends(
         'travel_from',
@@ -150,6 +165,26 @@ class DSADetails(models.Model):
             ('job_id', '=', self.job_id.id),
             ('active', '=', True),
         ], limit=1)
+
+        if not conf:
+            self.conf_id = False
+            self.travel_from = False
+            self.travel_to = False
+            self.travel_location_from = False
+            self.travel_location_to = False
+            self.travel_purpose = False
+            self.line_ids = [(5, 0, 0)]
+
+            return {
+                'warning': {
+                    'title': 'DSA Configuration Not Found',
+                    'message': (
+                                   'No active DSA Rate Configuration could be found for '
+                                   'designation "%s".\n\n'
+                                   'Please create a DSA Configuration before proceeding.'
+                               ) % self.job_id.name
+                }
+            }
 
         self.conf_id = conf
 
