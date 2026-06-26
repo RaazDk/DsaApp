@@ -98,17 +98,43 @@ class DSADetails(models.Model):
     # Computes
     # -------------------------------------------------------------------------
 
-    @api.depends('travel_from', 'travel_to', 'line_ids')
+    @api.depends(
+        'travel_from',
+        'travel_to',
+        'line_ids',
+        'line_ids.dsa_date_from',
+        'line_ids.dsa_date_to'
+    )
     def _compute_lines_remaining(self):
         for rec in self:
-            if rec.travel_from and rec.travel_to and rec.travel_to >= rec.travel_from:
-                total = (rec.travel_to - rec.travel_from).days + 1
-                rec.total_travel_days = total
-                rec.lines_remaining = max(0, total - len(rec.line_ids))
-            else:
+
+            if not rec.travel_from or not rec.travel_to:
                 rec.total_travel_days = 0
                 rec.lines_remaining = 0
+                continue
 
+            total_days = (
+                                 rec.travel_to - rec.travel_from
+                         ).days + 1
+
+            covered_dates = set()
+
+            for line in rec.line_ids:
+
+                if not line.dsa_date_from or not line.dsa_date_to:
+                    continue
+
+                current = line.dsa_date_from
+
+                while current <= line.dsa_date_to:
+                    covered_dates.add(current)
+                    current += timedelta(days=1)
+
+            rec.total_travel_days = total_days
+            rec.lines_remaining = max(
+                0,
+                total_days - len(covered_dates)
+            )
     # -------------------------------------------------------------------------
     # Onchanges
     # -------------------------------------------------------------------------
@@ -246,6 +272,37 @@ class DSADetailsLine(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             dsa_id = vals.get('dsa_id')
+
+            if dsa_id and not vals.get('dsa_date_from'):
+                dsa = self.env['dsa.details'].browse(dsa_id)
+
+                covered_dates = set(
+                    self.search([
+                        ('dsa_id', '=', dsa.id)
+                    ]).mapped('dsa_date_from')
+                )
+
+                total_days = (
+                                     dsa.travel_to - dsa.travel_from
+                             ).days + 1
+
+                next_date = None
+
+                for i in range(total_days):
+                    candidate = dsa.travel_from + timedelta(days=i)
+
+                    if candidate not in covered_dates:
+                        next_date = candidate
+                        break
+
+                if not next_date:
+                    raise ValidationError(
+                        'All travel dates already have accommodation entries.'
+                    )
+
+                vals['dsa_date_from'] = next_date
+                vals['dsa_date_to'] = next_date
+
             dsa_date_from = vals.get('dsa_date_from')
 
             if dsa_id and dsa_date_from:
@@ -256,8 +313,8 @@ class DSADetailsLine(models.Model):
 
                 if existing:
                     raise ValidationError(
-                        'An accommodation entry for %s already exists on this DSA record. '
-                        'Each date can only have one entry.' % dsa_date_from
+                        'Accommodation entry for %s already exists.'
+                        % dsa_date_from
                     )
 
         return super().create(vals_list)
@@ -266,33 +323,7 @@ class DSADetailsLine(models.Model):
     # Onchanges
     # -------------------------------------------------------------------------
 
-    @api.onchange('dsa_id')
-    def _onchange_dsa_id(self):
-        """
-        Auto-fills dsa_date_from and dsa_date_to when a new line is created.
-        - Line 1  -> travel_from
-        - Line N  -> previous line's dsa_date_from + 1 day
-        - Always clamped to travel_to
-        Works on both saved and unsaved (NewId) parent records.
-        """
-        parent = self.dsa_id
-        if not parent or not parent.travel_from:
-            return
 
-        existing = parent.line_ids.filtered(
-            lambda l: l.dsa_date_from and l != self
-        ).sorted('dsa_date_from')
-
-        if existing:
-            next_date = existing[-1].dsa_date_from + timedelta(days=1)
-        else:
-            next_date = parent.travel_from
-
-        if parent.travel_to and next_date > parent.travel_to:
-            next_date = parent.travel_to
-
-        self.dsa_date_from = next_date
-        self.dsa_date_to = next_date
 
     @api.onchange('dsa_date_from')
     def _onchange_duplicate_date(self):
@@ -372,22 +403,29 @@ class DSADetailsLine(models.Model):
     # Constraints
     # -------------------------------------------------------------------------
 
-    @api.constrains('dsa_date_from')
-    def _check_unique_date_per_dsa(self):
-        # Raises ValidationError before the SQL unique constraint fires,
-        # keeping the transaction clean and giving a readable message.
+    @api.constrains('dsa_date_from', 'dsa_date_to', 'dsa_id')
+    def _check_date_overlap(self):
         for line in self:
-            if not line.dsa_date_from:
+
+            if not line.dsa_date_from or not line.dsa_date_to:
                 continue
-            count = self.search_count([
-                ('dsa_id', '=', line.dsa_id.id),
-                ('dsa_date_from', '=', line.dsa_date_from),
+
+            overlap = self.search([
                 ('id', '!=', line.id),
-            ])
-            if count:
+                ('dsa_id', '=', line.dsa_id.id),
+                ('dsa_date_from', '<=', line.dsa_date_to),
+                ('dsa_date_to', '>=', line.dsa_date_from),
+            ], limit=1)
+
+            if overlap:
                 raise ValidationError(
-                    'An accommodation entry for %s already exists on this DSA record. '
-                    'Each date can only have one entry.' % line.dsa_date_from
+                    'Accommodation dates %s to %s overlap with existing accommodation entry %s to %s.'
+                    % (
+                        line.dsa_date_from,
+                        line.dsa_date_to,
+                        overlap.dsa_date_from,
+                        overlap.dsa_date_to,
+                    )
                 )
 
     @api.constrains('dsa_date_from', 'dsa_date_to')
