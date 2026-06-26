@@ -34,6 +34,7 @@ Long description of module's purpose
     'data': [
         'security/ir.model.access.csv',
         'views/dsa_details.xml',
+        'views/dsa_configurations.xml',
         'views/menu_items.xml',
 
     ],

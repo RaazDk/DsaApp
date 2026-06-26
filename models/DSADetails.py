@@ -70,6 +70,12 @@ class DSADetails(models.Model):
         required=True,
         default=lambda self: str(datetime.now().month)
     )
+    conf_id = fields.Many2one(
+        'dsa.conf',
+        string='Allowance Configuration',
+        domain=[('active', '=', True)]
+    )
+
 
     line_ids = fields.One2many(
         'dsa.details.line',
@@ -107,6 +113,28 @@ class DSADetails(models.Model):
     # Onchanges
     # -------------------------------------------------------------------------
 
+    @api.onchange('employee_id')
+    def _onchange_employee_id(self):
+        self.conf_id = False
+
+        if not self.job_id:
+            return
+
+        conf = self.env['dsa.conf'].search([
+            ('job_id', '=', self.job_id.id),
+            ('active', '=', True),
+        ], limit=1)
+
+        self.conf_id = conf
+
+        return {
+            'domain': {
+                'conf_id': [
+                    ('job_id', '=', self.job_id.id),
+                    ('active', '=', True),
+                ]
+            }
+        }
     @api.onchange('travel_from')
     def _onchange_travel_from(self):
         if self.travel_from and (

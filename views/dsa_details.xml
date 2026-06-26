@@ -21,6 +21,7 @@
                 <field name="travel_from"/>
                 <field name="travel_to"/>
                 <field name="total_travel_days" string="Days"/>
+                <field name="conf_id"/>
             </list>
         </field>
     </record>
@@ -40,6 +41,7 @@
                     <group col="2">
                         <group><field name="employee_id"/></group>
                         <group><field name="job_id" readonly="1"/></group>
+
                     </group>
 
                     <group col="2">
@@ -57,8 +59,10 @@
                         <group><field name="travel_location_to"/></group>
                     </group>
 
-                    <group>
+                    <group col="2">
                         <field name="travel_purpose"/>
+                        <group><field name="conf_id" readonly="1"/></group>
+
                     </group>
 
                     <!--
