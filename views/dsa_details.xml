@@ -34,6 +34,12 @@
         <field name="arch" type="xml">
 
             <form string="DSA Details">
+                 <header>
+                    <button string="Print Claim Sheet"
+                        type="action"
+                        name="%(dsa.action_report_dsa_claimsheet)d"
+                        class="btn-secondary"/>
+                 </header>
                 <sheet>
 
                     <field name="lines_remaining" invisible="1"/>

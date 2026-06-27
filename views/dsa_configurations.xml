@@ -18,6 +18,7 @@
                 <field name="dsa_rate"/>
                 <field name="deduction_if_lunch_provided"/>
                 <field name="deduction_if_hotel_provided"/>
+                <field name="issue_date"/>
                 <field name="active"/>
             </list>
         </field>
@@ -42,6 +43,9 @@
                         <group>
                             <field name="deduction_if_lunch_provided"/>
                             <field name="deduction_if_hotel_provided"/>
+                        </group>
+                        <group>
+                             <field name="issue_date"/>
                         </group>
 
                     </group>

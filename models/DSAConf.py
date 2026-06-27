@@ -1,3 +1,5 @@
+from docutils.parsers import null
+
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
@@ -16,6 +18,11 @@ class DSAConf(models.Model):
     dsa_rate = fields.Float(
         string='DSA Rate',
         required=True
+    )
+
+    issue_date = fields.Date(
+        string='Date of Issue',
+        required=True,
     )
 
     deduction_if_lunch_provided = fields.Float(
@@ -59,12 +66,16 @@ class DSAConf(models.Model):
                     'Please archive the existing configuration before creating another.'
                     % rec.job_id.name
                 )
-    @api.depends('job_id', 'dsa_rate')
+
+    @api.depends('dsa_rate', 'issue_date')
     def _compute_display_name(self):
         for rec in self:
-            if rec.job_id and rec.dsa_rate:
-                rec.display_name = '%s: %.2f' % (rec.job_id.name, rec.dsa_rate)
-            elif rec.job_id:
-                rec.display_name = rec.job_id.name
-            else:
-                rec.display_name = ''
+            parts = []
+
+            if rec.issue_date:
+                parts.append(f"Revision: [{rec.issue_date.strftime('%d %b %Y')}]")
+
+            if rec.dsa_rate:
+                parts.append(f"Rate: [{rec.dsa_rate:.2f}]")
+
+            rec.display_name = " ".join(parts)
