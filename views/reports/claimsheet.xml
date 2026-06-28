@@ -16,10 +16,59 @@
         <template id="report_dsa_claimsheet">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <t t-call="web.external_layout">
+                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+
+                        <!-- Centered company logo and name -->
+                        <div style="text-align:center; margin-bottom:6px;">
+                            <img t-att-src="'/web/image/res.company/%s/logo' % doc.env.company.id"
+                                 style="max-height:80px; max-width:220px; display:block; margin:0 auto;"/>
+                            <div style="font-size:13px; font-weight:bold; margin-top:4px;">
+                                <t t-out="doc.env.company.name"/>
+                            </div>
+                            <div style="font-size:11px;">
+                                <t t-out="doc.env.company.country_id.name or ''"/>
+                            </div>
+                        </div>
+
                         <div class="page">
 
                             <style>
+                                /* Force center the external layout header */
+                                #wkhtmltopdf_sep_header,
+                                .header,
+                                .o_report_layout_standard > div:first-child,
+                                .o_report_layout > div:first-child {
+                                    text-align: center !important;
+                                }
+                                /* Target Odoo's company header block */
+                                .o_company_and_address,
+                                .o_company_and_address td,
+                                .o_company_and_address tr {
+                                    text-align: center !important;
+                                    display: block;
+                                    width: 100%;
+                                }
+                                /* Logo itself */
+                                img.o_company_logo,
+                                .o_company_logo img,
+                                [class*="logo"] img,
+                                img[class*="logo"] {
+                                    display: block !important;
+                                    margin: 0 auto !important;
+                                }
+                                /* The top header table Odoo generates */
+                                .header > table {
+                                    width: 100%;
+                                }
+                                .header > table td {
+                                    text-align: center !important;
+                                    vertical-align: middle !important;
+                                }
+                                /* Override any left-aligned cells in header */
+                                .page-header td,
+                                .page-header th {
+                                    text-align: center !important;
+                                }
                                 .dsa-table {
                                     width: 100%;
                                     border-collapse: collapse;
@@ -153,21 +202,7 @@
                                         </tr>
                                     </t>
 
-                                    <!-- Empty rows to fill up to 10 rows total -->
-                                    <t t-set="filled" t-value="len(doc.line_ids)"/>
-                                    <t t-set="empty_rows" t-value="max(0, 10 - filled)"/>
-                                    <t t-foreach="range(empty_rows)" t-as="i">
-                                        <tr>
-                                            <td class="text-center"><t t-out="filled + i + 1"/></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td class="text-right">-</td>
-                                            <td></td>
-                                        </tr>
-                                    </t>
+
 
                                 </tbody>
 
@@ -276,26 +311,26 @@
                                 </t>
                             </div>
 
-                            <!-- Signature Block -->
-                            <table style="width:100%; margin-top:40px; border-collapse:collapse;">
-                                <tr>
-                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">
-                                        <div style="border-top:1px solid #000; padding-top:4px;">
-                                            Claimant Signature
-                                        </div>
-                                        <div><t t-out="doc.employee_id.name"/></div>
-                                    </td>
-                                    <td style="width:33%; border:none;"></td>
-                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">
-                                        <div style="border-top:1px solid #000; padding-top:4px;">
-                                            Authorised Signature
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+<!--                            &lt;!&ndash; Signature Block &ndash;&gt;-->
+<!--                            <table style="width:100%; margin-top:40px; border-collapse:collapse;">-->
+<!--                                <tr>-->
+<!--                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">-->
+<!--                                        <div style="border-top:1px solid #000; padding-top:4px;">-->
+<!--                                            Claimant Signature-->
+<!--                                        </div>-->
+<!--                                        <div><t t-out="doc.employee_id.name"/></div>-->
+<!--                                    </td>-->
+<!--                                    <td style="width:33%; border:none;"></td>-->
+<!--                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">-->
+<!--                                        <div style="border-top:1px solid #000; padding-top:4px;">-->
+<!--                                            Authorised Signature-->
+<!--                                        </div>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </table>-->
 
                         </div>
-                    </t>
+                    </div>
                 </t>
             </t>
         </template>
