@@ -6,7 +6,7 @@
         <record id="action_report_dsa_claimsheet" model="ir.actions.report">
             <field name="name">DSA Claim Sheet</field>
             <field name="model">dsa.details</field>
-            <field name="report_type">qweb-html</field>
+            <field name="report_type">qweb-pdf</field>
             <field name="report_name">dsa.report_dsa_claimsheet</field>
             <field name="report_file">dsa.report_dsa_claimsheet</field>
             <field name="binding_model_id" ref="model_dsa_details"/>
@@ -22,12 +22,7 @@
                         <div style="text-align:center; margin-bottom:6px;">
                             <img t-att-src="'/web/image/res.company/%s/logo' % doc.env.company.id"
                                  style="max-height:80px; max-width:220px; display:block; margin:0 auto;"/>
-                            <div style="font-size:13px; font-weight:bold; margin-top:4px;">
-                                <t t-out="doc.env.company.name"/>
-                            </div>
-                            <div style="font-size:11px;">
-                                <t t-out="doc.env.company.country_id.name or ''"/>
-                            </div>
+
                         </div>
 
                         <div class="page">
@@ -100,10 +95,17 @@
                                 .office-use  { text-decoration: underline; font-weight: bold; }
                                 .in-npr      { text-align: right; font-style: italic; font-size: 10px; }
                                 .total-row td { font-weight: bold; }
+
+
+
+.dsa-table,
+.dsa-header-table {
+    width: 100% !important;
+}
                             </style>
 
                             <!-- Title -->
-                            <h4 class="text-center" style="margin-bottom:2px;">
+                            <h4 class="text-center" style="margin-bottom:5px; margin-top:7px;">
                                 DSA Calculation for SSA Holders
                             </h4>
                             <p class="text-center office-use" style="margin-bottom:8px;">
@@ -114,7 +116,7 @@
                             <table class="dsa-header-table">
                                 <tr>
                                     <td style="width:50%">
-                                        Name :&#160;<t t-out="doc.employee_id.name"/>
+                                        Name :<t t-out="doc.employee_id.name"/>
                                     </td>
                                     <td style="width:50%">
                                         Duty Station:
@@ -250,7 +252,7 @@
                                     <td colspan="6" style="border:none; padding-left:8px;">
                                         Daily Allowance
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-right" style="border:none;">
                                         <t t-set="grand_total2" t-value="0.0"/>
                                         <t t-foreach="doc.line_ids" t-as="tl2">
                                             <t t-set="tdays2"
@@ -276,8 +278,8 @@
                                     <td colspan="6" style="border:none; padding-left:8px;">
                                         Travel Cost and Misc. Expenses
                                     </td>
-                                    <td class="text-right">-</td>
-                                    <td class="text-right">-</td>
+                                    <td class="text-right" style="border:none;">-</td>
+                                    <td class="text-right" style="border:none;">-</td>
                                 </tr>
                                 <tr style="font-weight:bold;">
                                     <td colspan="6" class="text-center" style="font-weight:bold;">
