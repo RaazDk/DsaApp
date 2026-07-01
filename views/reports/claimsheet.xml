@@ -6,106 +6,103 @@
         <record id="action_report_dsa_claimsheet" model="ir.actions.report">
             <field name="name">DSA Claim Sheet</field>
             <field name="model">dsa.details</field>
-            <field name="report_type">qweb-pdf</field>
+            <field name="report_type">qweb-html</field>
             <field name="report_name">dsa.report_dsa_claimsheet</field>
             <field name="report_file">dsa.report_dsa_claimsheet</field>
             <field name="binding_model_id" ref="model_dsa_details"/>
             <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
         </record>
 
         <template id="report_dsa_claimsheet">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
-                    <div style="font-family: Arial, sans-serif; padding: 20px;">
+                    <t t-set="company" t-value="doc.env.company"/>
+                    <div t-attf-style="font-family: Arial, sans-serif; padding: 20px;#{' page-break-after: always;' if not doc_index == len(docs) - 1 else ''}">
 
-                        <!-- Centered company logo and name -->
+                        <!-- Centered company logo — embedded as base64 so it always renders -->
                         <div style="text-align:center; margin-bottom:6px;">
-                            <img t-att-src="'/web/image/res.company/%s/logo' % doc.env.company.id"
+                            <img t-att-src="image_data_uri(company.logo)"
                                  style="max-height:80px; max-width:220px; display:block; margin:0 auto;"/>
-
                         </div>
 
                         <div class="page">
 
                             <style>
-                                /* Force center the external layout header */
-                                #wkhtmltopdf_sep_header,
-                                .header,
-                                .o_report_layout_standard > div:first-child,
-                                .o_report_layout > div:first-child {
-                                    text-align: center !important;
+                                @page {
+                                    size: A4 portrait;
+                                    margin: 18mm 15mm 18mm 15mm;
                                 }
-                                /* Target Odoo's company header block */
-                                .o_company_and_address,
-                                .o_company_and_address td,
-                                .o_company_and_address tr {
-                                    text-align: center !important;
-                                    display: block;
-                                    width: 100%;
+                                * {
+                                    box-sizing: border-box;
                                 }
-                                /* Logo itself */
-                                img.o_company_logo,
-                                .o_company_logo img,
-                                [class*="logo"] img,
-                                img[class*="logo"] {
-                                    display: block !important;
-                                    margin: 0 auto !important;
+                                body, .page, div, td, th, p {
+                                    font-family: Arial, sans-serif;
+                                    font-size: 13px;
+                                    line-height: 1.8;
+                                    letter-spacing: 0.3px;
+                                    color: #000;
                                 }
-                                /* The top header table Odoo generates */
-                                .header > table {
-                                    width: 100%;
-                                }
-                                .header > table td {
-                                    text-align: center !important;
-                                    vertical-align: middle !important;
-                                }
-                                /* Override any left-aligned cells in header */
-                                .page-header td,
-                                .page-header th {
-                                    text-align: center !important;
+                                h4 {
+                                    font-size: 16px;
+                                    letter-spacing: 0.6px;
+                                    line-height: 1.6;
+                                    margin: 6px 0;
                                 }
                                 .dsa-table {
                                     width: 100%;
                                     border-collapse: collapse;
-                                    font-size: 11px;
+                                    font-size: 12px;
+                                    margin-top: 8px;
                                 }
                                 .dsa-table td, .dsa-table th {
                                     border: 1px solid #000;
-                                    padding: 4px 6px;
+                                    padding: 7px 8px;
                                     vertical-align: middle;
+                                    line-height: 1.6;
                                 }
                                 .dsa-table th {
                                     text-align: center;
                                     font-weight: bold;
+                                    font-size: 11px;
                                     background-color: #f0f0f0;
+                                    letter-spacing: 0.4px;
+                                    padding: 8px 6px;
                                 }
                                 .dsa-header-table {
                                     width: 100%;
                                     border-collapse: collapse;
-                                    font-size: 11px;
-                                    margin-bottom: 6px;
+                                    font-size: 13px;
+                                    margin-bottom: 10px;
                                 }
                                 .dsa-header-table td {
-                                    padding: 2px 4px;
+                                    padding: 3px 4px;
                                     border: none;
+                                    line-height: 1.8;
                                 }
                                 .text-center { text-align: center; }
                                 .text-right  { text-align: right; }
                                 .text-left   { text-align: left; }
-                                .office-use  { text-decoration: underline; font-weight: bold; }
-                                .in-npr      { text-align: right; font-style: italic; font-size: 10px; }
-                                .total-row td { font-weight: bold; }
-
-
-
-.dsa-table,
-.dsa-header-table {
-    width: 100% !important;
-}
+                                .office-use  {
+                                    text-decoration: underline;
+                                    font-weight: bold;
+                                    font-size: 14px;
+                                    letter-spacing: 0.5px;
+                                }
+                                .in-npr {
+                                    text-align: right;
+                                    font-style: italic;
+                                    font-size: 11px;
+                                }
+                                .total-row td {
+                                    font-weight: bold;
+                                    font-size: 13px;
+                                    padding: 8px 8px;
+                                }
                             </style>
 
                             <!-- Title -->
-                            <h4 class="text-center" style="margin-bottom:5px; margin-top:7px;">
+                            <h4 class="text-center" style="margin-bottom:2px;">
                                 DSA Calculation for SSA Holders
                             </h4>
                             <p class="text-center office-use" style="margin-bottom:8px;">
@@ -116,15 +113,15 @@
                             <table class="dsa-header-table">
                                 <tr>
                                     <td style="width:50%">
-                                        Name :<t t-out="doc.employee_id.name"/>
+                                        Name : <t t-out="doc.employee_id.name"/>
                                     </td>
                                     <td style="width:50%">
-                                        Duty Station:
+                                        Duty Station: <t t-out="doc.work_location_id.name or ''"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        Position:&#160;<t t-out="doc.job_id.name or ''"/>
+                                        Position: <t t-out="doc.job_id.name or ''"/>
                                     </td>
                                     <td>
                                         For the month of:&#160;
@@ -159,8 +156,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
-                                    <!-- Filled lines from accommodation data -->
                                     <t t-foreach="doc.line_ids" t-as="line">
 
                                         <t t-set="line_days"
@@ -203,9 +198,6 @@
                                             <td></td>
                                         </tr>
                                     </t>
-
-
-
                                 </tbody>
 
                                 <!-- Total Row -->
@@ -237,7 +229,6 @@
                                         <td></td>
                                     </tr>
                                 </tfoot>
-
                             </table>
 
                             <!-- Summary Footer Table -->
@@ -291,7 +282,7 @@
                                 </tr>
                             </table>
 
-                            <!-- Deduction Notes — no % formatting, all literal text -->
+                            <!-- Deduction Notes -->
                             <div style="margin-top:10px; font-size:10px;">
                                 <t t-foreach="doc.line_ids" t-as="line">
                                     <t t-if="line.hotel_provided or line.lunch_provided">
@@ -313,23 +304,6 @@
                                 </t>
                             </div>
 
-<!--                            &lt;!&ndash; Signature Block &ndash;&gt;-->
-<!--                            <table style="width:100%; margin-top:40px; border-collapse:collapse;">-->
-<!--                                <tr>-->
-<!--                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">-->
-<!--                                        <div style="border-top:1px solid #000; padding-top:4px;">-->
-<!--                                            Claimant Signature-->
-<!--                                        </div>-->
-<!--                                        <div><t t-out="doc.employee_id.name"/></div>-->
-<!--                                    </td>-->
-<!--                                    <td style="width:33%; border:none;"></td>-->
-<!--                                    <td style="width:33%; border:none; text-align:center; padding-top:30px;">-->
-<!--                                        <div style="border-top:1px solid #000; padding-top:4px;">-->
-<!--                                            Authorised Signature-->
-<!--                                        </div>-->
-<!--                                    </td>-->
-<!--                                </tr>-->
-<!--                            </table>-->
 
                         </div>
                     </div>

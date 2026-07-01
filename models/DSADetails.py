@@ -21,6 +21,20 @@ class DSADetails(models.Model):
         store=True,
         readonly=True
     )
+    work_location_id = fields.Many2one(
+        'hr.work.location',
+        string='Work Location',
+        related='employee_id.work_location_id',
+        store=True,
+        readonly=True,
+    )
+    work_address_id = fields.Many2one(
+        'res.partner',
+        string='Work Address',
+        related='employee_id.address_id',
+        store=True,
+        readonly=True,
+    )
 
     tr_number = fields.Char(
         string='Travel Order Number',
