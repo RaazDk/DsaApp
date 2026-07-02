@@ -122,7 +122,6 @@ class DSADetails(models.Model):
     def _compute_conf_id(self):
         for rec in self:
             rec.conf_id = self.env['dsa.conf'].search([
-                ('job_id', '=', rec.job_id.id),
                 ('active', '=', True),
             ], limit=1)
 
@@ -176,7 +175,6 @@ class DSADetails(models.Model):
             return
 
         conf = self.env['dsa.conf'].search([
-            ('job_id', '=', self.job_id.id),
             ('active', '=', True),
         ], limit=1)
 

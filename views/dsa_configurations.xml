@@ -14,7 +14,7 @@
         <field name="model">dsa.conf</field>
         <field name="arch" type="xml">
             <list string="DSA Configuration">
-                <field name="job_id"/>
+                <field name="year"/>
                 <field name="dsa_rate"/>
                 <field name="deduction_if_lunch_provided"/>
                 <field name="deduction_if_hotel_provided"/>
@@ -36,7 +36,7 @@
                     <group col="2">
 
                         <group>
-                            <field name="job_id"/>
+                            <field name="year"/>
                             <field name="dsa_rate"/>
                         </group>
 

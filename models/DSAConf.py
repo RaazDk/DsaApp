@@ -8,11 +8,9 @@ class DSAConf(models.Model):
     _description = 'DSA Configurations, includes: DSA Rates and Deductions'
     _rec_name = 'display_name'
 
-    job_id = fields.Many2one(
-        'hr.job',
-        string='Designation',
+    year = fields.Char(
+        string='Year',
         required=True,
-        domain=[('active', '=', True)]
     )
 
     dsa_rate = fields.Float(
@@ -48,23 +46,22 @@ class DSAConf(models.Model):
         store=True,
     )
 
-    @api.constrains('job_id', 'active')
+    @api.constrains('active')
     def _check_single_active_configuration(self):
         for rec in self:
-            if not rec.active or not rec.job_id:
+            if not rec.active:
                 continue
 
             duplicate = self.search([
                 ('id', '!=', rec.id),
-                ('job_id', '=', rec.job_id.id),
                 ('active', '=', True),
             ], limit=1)
 
             if duplicate:
                 raise ValidationError(
-                    'An active DSA Configuration already exists for designation "%s". '
+
                     'Please archive the existing configuration before creating another.'
-                    % rec.job_id.name
+
                 )
 
     @api.depends('dsa_rate', 'issue_date')

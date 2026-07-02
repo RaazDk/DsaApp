@@ -124,12 +124,14 @@
                                         Position: <t t-out="doc.job_id.name or ''"/>
                                     </td>
                                     <td>
-                                        For the month of:&#160;
-                                        <t t-out="dict(doc.fields_get(['month'])['month']['selection'])[doc.month]"/>
+                                        For the month of:
+                                        <t t-if="doc.travel_from">
+                                            <span t-esc="doc.travel_from.strftime('%B, %Y')"/>
+                                        </t>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>TR No:&#160;<t t-out="doc.tr_number"/></td>
+                                    <td>TR No:<t t-out="doc.tr_number"/></td>
                                     <td></td>
                                 </tr>
                                 <tr>
