@@ -1,8 +1,33 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <menuitem name="DSA" id="menu_root_dsa">
-        <menuitem id="menu_dsa" name="DSA">
-            <menuitem id="dsa_details" name="DSA Details" action="dsa.action_dsa_details"/>
-        </menuitem>
-    </menuitem>
+
+    <!-- Root App -->
+    <menuitem
+        id="menu_root_dsa"
+        name="DSA"
+        sequence="10"/>
+
+    <!-- Main Transaction Menu -->
+    <menuitem
+        id="menu_dsa_details"
+        name="DSA Details"
+        parent="menu_root_dsa"
+        action="action_dsa_details"
+        sequence="10"/>
+
+    <!-- Configuration Parent -->
+    <menuitem
+        id="menu_dsa_configuration_root"
+        name="Configuration"
+        parent="menu_root_dsa"
+        sequence="90"/>
+
+    <!-- Configuration Screen -->
+    <menuitem
+        id="menu_dsa_configuration"
+        name="DSA Configuration"
+        parent="menu_dsa_configuration_root"
+        action="action_dsa_conf"
+        sequence="10"/>
+
 </odoo>

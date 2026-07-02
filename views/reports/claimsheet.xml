@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Report Action -->
+        <record id="action_report_dsa_claimsheet" model="ir.actions.report">
+            <field name="name">DSA Claim Sheet</field>
+            <field name="model">dsa.details</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">dsa.report_dsa_claimsheet</field>
+            <field name="report_file">dsa.report_dsa_claimsheet</field>
+            <field name="binding_model_id" ref="model_dsa_details"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+
+        <template id="report_dsa_claimsheet">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="company" t-value="doc.env.company"/>
+                    <div t-attf-style="font-family: Arial, sans-serif; padding: 20px;#{' page-break-after: always;' if not doc_index == len(docs) - 1 else ''}">
+
+                        <!-- Centered company logo — embedded as base64 so it always renders -->
+                        <div style="text-align:center; margin-bottom:6px;">
+                            <img t-att-src="image_data_uri(company.logo)"
+                                 style="max-height:80px; max-width:220px; display:block; margin:0 auto;"/>
+                        </div>
+
+                        <div class="page">
+
+                            <style>
+                                @page {
+                                    size: A4 portrait;
+                                    margin: 18mm 15mm 18mm 15mm;
+                                }
+                                * {
+                                    box-sizing: border-box;
+                                }
+                                body, .page, div, td, th, p {
+                                    font-family: Arial, sans-serif;
+                                    font-size: 13px;
+                                    line-height: 1.8;
+                                    letter-spacing: 0.3px;
+                                    color: #000;
+                                }
+                                h4 {
+                                    font-size: 16px;
+                                    letter-spacing: 0.6px;
+                                    line-height: 1.6;
+                                    margin: 6px 0;
+                                }
+                                .dsa-table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    font-size: 12px;
+                                    margin-top: 8px;
+                                }
+                                .dsa-table td, .dsa-table th {
+                                    border: 1px solid #000;
+                                    padding: 7px 8px;
+                                    vertical-align: middle;
+                                    line-height: 1.6;
+                                }
+                                .dsa-table th {
+                                    text-align: center;
+                                    font-weight: bold;
+                                    font-size: 11px;
+                                    background-color: #f0f0f0;
+                                    letter-spacing: 0.4px;
+                                    padding: 8px 6px;
+                                }
+                                .dsa-header-table {
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    font-size: 13px;
+                                    margin-bottom: 10px;
+                                }
+                                .dsa-header-table td {
+                                    padding: 3px 4px;
+                                    border: none;
+                                    line-height: 1.8;
+                                }
+                                .text-center { text-align: center; }
+                                .text-right  { text-align: right; }
+                                .text-left   { text-align: left; }
+                                .office-use  {
+                                    text-decoration: underline;
+                                    font-weight: bold;
+                                    font-size: 14px;
+                                    letter-spacing: 0.5px;
+                                }
+                                .in-npr {
+                                    text-align: right;
+                                    font-style: italic;
+                                    font-size: 11px;
+                                }
+                                .total-row td {
+                                    font-weight: bold;
+                                    font-size: 13px;
+                                    padding: 8px 8px;
+                                }
+                            </style>
+
+                            <!-- Title -->
+                            <h4 class="text-center" style="margin-bottom:2px;">
+                                DSA Calculation for SSA Holders
+                            </h4>
+                            <p class="text-center office-use" style="margin-bottom:8px;">
+                                OFFICE USE ONLY
+                            </p>
+
+                            <!-- Header Info -->
+                            <table class="dsa-header-table">
+                                <tr>
+                                    <td style="width:50%">
+                                        Name : <t t-out="doc.employee_id.name"/>
+                                    </td>
+                                    <td style="width:50%">
+                                        Duty Station: <t t-out="doc.work_location_id.name or ''"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Position: <t t-out="doc.job_id.name or ''"/>
+                                    </td>
+                                    <td>
+                                        For the month of:
+                                        <t t-if="doc.travel_from">
+                                            <span t-esc="doc.travel_from.strftime('%B, %Y')"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TR No:<t t-out="doc.tr_number"/></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>PO#&#160;<t t-out="doc.po_number"/></td>
+                                    <td></td>
+                                </tr>
+                            </table>
+
+                            <!-- in NPR label -->
+                            <p class="in-npr" style="margin-bottom:2px;">in NPR</p>
+
+                            <!-- Main DSA Table -->
+                            <table class="dsa-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:5%">S.N.</th>
+                                        <th style="width:22%">PLACE OF NIGHT HALT</th>
+                                        <th style="width:20%">DATES</th>
+                                        <th style="width:8%">NO. OF DAYS</th>
+                                        <th style="width:10%">PER DIEM RATE</th>
+                                        <th style="width:12%">CLAIMED PER DIEM</th>
+                                        <th style="width:13%">AMOUNT</th>
+                                        <th style="width:10%">FIN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="doc.line_ids" t-as="line">
+
+                                        <t t-set="line_days"
+                                           t-value="(line.dsa_date_to - line.dsa_date_from).days + 1
+                                                    if line.dsa_date_from and line.dsa_date_to else 0"/>
+
+                                        <t t-set="line_ded" t-value="0.0"/>
+                                        <t t-if="line.hotel_provided"
+                                           t-set="line_ded"
+                                           t-value="line_ded + (doc.conf_id.deduction_if_hotel_provided or 0.0)"/>
+                                        <t t-if="line.lunch_provided"
+                                           t-set="line_ded"
+                                           t-value="line_ded + (doc.conf_id.deduction_if_lunch_provided or 0.0)"/>
+                                        <t t-set="line_ded" t-value="min(line_ded, 100.0)"/>
+
+                                        <t t-set="line_rate" t-value="doc.conf_id.dsa_rate or 0.0"/>
+                                        <t t-set="claimed_rate"
+                                           t-value="line_rate * (1.0 - line_ded / 100.0)"/>
+                                        <t t-set="line_amount"
+                                           t-value="line_days * claimed_rate"/>
+
+                                        <tr>
+                                            <td class="text-center"><t t-out="line_index + 1"/></td>
+                                            <td><t t-out="line.place_of_stay or ''"/></td>
+                                            <td class="text-center">
+                                                <t t-out="line.dsa_date_from"
+                                                   t-options='{"widget": "date", "format": "d MMM yyyy"}'/>
+                                                to
+                                                <t t-out="line.dsa_date_to"
+                                                   t-options='{"widget": "date", "format": "d MMM yyyy"}'/>
+                                                <br/>
+                                                Last Day:
+                                                <t t-out="line.dsa_date_to"
+                                                   t-options='{"widget": "date", "format": "d MMM yyyy"}'/>
+                                            </td>
+                                            <td class="text-center"><t t-out="line_days"/></td>
+                                            <td class="text-right"><t t-out="'%.2f' % line_rate"/></td>
+                                            <td class="text-right"><t t-out="'%.2f' % claimed_rate"/></td>
+                                            <td class="text-right"><t t-out="'%.2f' % line_amount"/></td>
+                                            <td></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+
+                                <!-- Total Row -->
+                                <tfoot>
+                                    <t t-set="grand_total" t-value="0.0"/>
+                                    <t t-foreach="doc.line_ids" t-as="tl">
+                                        <t t-set="tdays"
+                                           t-value="(tl.dsa_date_to - tl.dsa_date_from).days + 1
+                                                    if tl.dsa_date_from and tl.dsa_date_to else 0"/>
+                                        <t t-set="tded" t-value="0.0"/>
+                                        <t t-if="tl.hotel_provided"
+                                           t-set="tded"
+                                           t-value="tded + (doc.conf_id.deduction_if_hotel_provided or 0.0)"/>
+                                        <t t-if="tl.lunch_provided"
+                                           t-set="tded"
+                                           t-value="tded + (doc.conf_id.deduction_if_lunch_provided or 0.0)"/>
+                                        <t t-set="tded" t-value="min(tded, 100.0)"/>
+                                        <t t-set="trate" t-value="doc.conf_id.dsa_rate or 0.0"/>
+                                        <t t-set="grand_total"
+                                           t-value="grand_total + tdays * trate * (1.0 - tded / 100.0)"/>
+                                    </t>
+                                    <tr class="total-row">
+                                        <td colspan="6" class="text-center">
+                                            TOTAL DSA PAYABLE
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-out="'%.2f' % grand_total"/>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- Summary Footer Table -->
+                            <table class="dsa-table" style="margin-top:16px;">
+                                <tr>
+                                    <td colspan="6" style="border:none;"></td>
+                                    <td colspan="2" class="in-npr" style="border:none; text-align:right; font-style:italic;">
+                                        in NPR
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" style="border:none; padding-left:8px;">
+                                        Daily Allowance
+                                    </td>
+                                    <td class="text-right" style="border:none;">
+                                        <t t-set="grand_total2" t-value="0.0"/>
+                                        <t t-foreach="doc.line_ids" t-as="tl2">
+                                            <t t-set="tdays2"
+                                               t-value="(tl2.dsa_date_to - tl2.dsa_date_from).days + 1
+                                                        if tl2.dsa_date_from and tl2.dsa_date_to else 0"/>
+                                            <t t-set="tded2" t-value="0.0"/>
+                                            <t t-if="tl2.hotel_provided"
+                                               t-set="tded2"
+                                               t-value="tded2 + (doc.conf_id.deduction_if_hotel_provided or 0.0)"/>
+                                            <t t-if="tl2.lunch_provided"
+                                               t-set="tded2"
+                                               t-value="tded2 + (doc.conf_id.deduction_if_lunch_provided or 0.0)"/>
+                                            <t t-set="tded2" t-value="min(tded2, 100.0)"/>
+                                            <t t-set="trate2" t-value="doc.conf_id.dsa_rate or 0.0"/>
+                                            <t t-set="grand_total2"
+                                               t-value="grand_total2 + tdays2 * trate2 * (1.0 - tded2 / 100.0)"/>
+                                        </t>
+                                        <t t-out="'%.2f' % grand_total2"/>
+                                    </td>
+                                    <td style="border:none;"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" style="border:none; padding-left:8px;">
+                                        Travel Cost and Misc. Expenses
+                                    </td>
+                                    <td class="text-right" style="border:none;">-</td>
+                                    <td class="text-right" style="border:none;">-</td>
+                                </tr>
+                                <tr style="font-weight:bold;">
+                                    <td colspan="6" class="text-center" style="font-weight:bold;">
+                                        Total Payable
+                                    </td>
+                                    <td colspan="2" class="text-right" style="font-weight:bold;">
+                                        NPR&#160;<t t-out="'%.2f' % grand_total2"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Deduction Notes -->
+                            <div style="margin-top:10px; font-size:10px;">
+                                <t t-foreach="doc.line_ids" t-as="line">
+                                    <t t-if="line.hotel_provided or line.lunch_provided">
+                                        <div>
+                                            <t t-out="line.dsa_date_from"
+                                               t-options='{"widget": "date", "format": "d MMM yyyy"}'/>
+                                            -
+                                            <t t-out="line.dsa_date_to"
+                                               t-options='{"widget": "date", "format": "d MMM yyyy"}'/>
+                                            ;
+                                            <t t-if="line.hotel_provided">
+                                                <t t-out="int(doc.conf_id.deduction_if_hotel_provided or 0)"/>% deduction for accommodation provided by organizer<t t-if="line.lunch_provided">; </t>
+                                            </t>
+                                            <t t-if="line.lunch_provided">
+                                                <t t-out="int(doc.conf_id.deduction_if_lunch_provided or 0)"/>% deduction for lunch provided
+                                            </t>
+                                        </div>
+                                    </t>
+                                </t>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

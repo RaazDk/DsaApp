@@ -16,11 +16,13 @@
             <list string="DSA Details">
                 <field name="employee_id"/>
                 <field name="job_id"/>
+                <field name="tr_number"/>
                 <field name="po_number"/>
                 <field name="month"/>
                 <field name="travel_from"/>
                 <field name="travel_to"/>
                 <field name="total_travel_days" string="Days"/>
+                <field name="conf_id"/>
             </list>
         </field>
     </record>
@@ -32,6 +34,12 @@
         <field name="arch" type="xml">
 
             <form string="DSA Details">
+                 <header>
+                    <button string="Print Claim Sheet"
+                        type="action"
+                        name="%(dsa.action_report_dsa_claimsheet)d"
+                        class="btn-secondary"/>
+                 </header>
                 <sheet>
 
                     <field name="lines_remaining" invisible="1"/>
@@ -40,25 +48,31 @@
                     <group col="2">
                         <group><field name="employee_id"/></group>
                         <group><field name="job_id" readonly="1"/></group>
+
                     </group>
 
                     <group col="2">
+                        <group><field name="tr_number"/> </group>
                         <group><field name="po_number"/></group>
+                    </group>
+
+                    <group col="2">
                         <group><field name="month"/></group>
-                    </group>
-
-                    <group col="2">
                         <group><field name="travel_from"/></group>
-                        <group><field name="travel_to"/></group>
                     </group>
 
                     <group col="2">
+                        <group><field name="travel_to"/></group>
                         <group><field name="travel_location_from"/></group>
-                        <group><field name="travel_location_to"/></group>
                     </group>
 
+                    <group col="2">
+                        <group><field name="travel_location_to"/></group>
+                        <group><field name="travel_purpose"/></group>
+                    </group>
                     <group>
-                        <field name="travel_purpose"/>
+                        <group><field name="conf_id" readonly="1"/></group>
+
                     </group>
 
                     <!--
