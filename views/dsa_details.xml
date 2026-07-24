@@ -8,21 +8,29 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <!-- List View -->
+    <!--
+        List View
+        NOTE on "SN": Odoo list views have no built-in auto row-number
+        column, so it is intentionally omitted here. A stored counter field
+        could be added instead, but it would drift out of sync whenever a
+        record is deleted or the list is filtered/sorted differently.
+    -->
     <record id="view_dsa_details_list" model="ir.ui.view">
         <field name="name">dsa.details.list</field>
         <field name="model">dsa.details</field>
         <field name="arch" type="xml">
-            <list string="DSA Details">
-                <field name="employee_id"/>
-                <field name="job_id"/>
-                <field name="tr_number"/>
-                <field name="po_number"/>
-                <field name="month"/>
-                <field name="travel_from"/>
-                <field name="travel_to"/>
-                <field name="total_travel_days" string="Days"/>
-                <field name="conf_id"/>
+            <list string="DSA Claim List">
+                <field name="employee_id" string="Name"/>
+                <field name="job_id" string="Position"/>
+                <field name="tr_number" string="TR No:"/>
+                <field name="po_number" string="PO No:"/>
+                <field name="work_location_id" string="Duty Station"/>
+                <field name="month_year_display" string="For the Month"/>
+                <field name="night_halt_places" string="Place of Night Halt"/>
+                <field name="total_dsa_days" string="No of Days" />
+                <field name="total_dsa_amount" string="Total DSA"/>
+                <field name="travel_cost_misc_expenses" string="Travel Cost and Misc Expenses"/>
+                <field name="total_payable_amount" string="Total Payable Amount" />
             </list>
         </field>
     </record>
@@ -73,6 +81,15 @@
                     <group>
                         <group><field name="conf_id" readonly="1"/></group>
 
+                    </group>
+
+                    <group col="2">
+                        <group><field name="total_dsa_amount" readonly="1"/></group>
+                        <group><field name="travel_cost_misc_expenses"/></group>
+                    </group>
+
+                    <group col="2">
+                        <group><field name="total_payable_amount" readonly="1" class="fw-bold"/></group>
                     </group>
 
                     <!--
