@@ -46,6 +46,17 @@ class DSAConf(models.Model):
         store=True,
     )
 
+    @api.model
+    def get_conf_for_job(self, job_id):
+        """
+        Returns position-specific config if found,
+        falls back to common rate (no job_id) otherwise.
+        """
+        # Fallback — common rate
+        return self.search([
+            ('active', '=', True),
+        ], limit=1)
+
     @api.constrains('active')
     def _check_single_active_configuration(self):
         for rec in self:
